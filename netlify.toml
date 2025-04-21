@@ -1,0 +1,37 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Custom domain configuration
+[build.environment]
+  NODE_VERSION = "20"
+
+# Security Headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self' https://hwqanehwtpxfwokmhnpz.supabase.co https://*.netlify.app; script-src 'self' 'nonce-WILL_BE_REPLACED_AT_BUILD' https://www.googletagmanager.com; style-src 'self' 'nonce-WILL_BE_REPLACED_AT_BUILD' https://fonts.googleapis.com; img-src 'self' data: https://*.unsplash.com https://*.supabase.co https://www.google-analytics.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://hwqanehwtpxfwokmhnpz.supabase.co https://www.google-analytics.com; frame-ancestors 'none';"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+# Redirect all HTTP to HTTPS
+[[redirects]]
+  from = "http://*"
+  to = "https://:splat"
+  status = 301
+  force = true
+
+# SPA Fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache Control for Static Assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

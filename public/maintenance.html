@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance | JDM HEAVEN</title>
+    <meta name="description" content="We're currently performing maintenance to improve your experience. We'll be back shortly with more JDM legends!">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Dots&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CDN for maintenance page -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'racing-red': '#FF0000',
+                        'midnight': '#121212',
+                    },
+                    fontFamily: {
+                        'zen': ['Zen Dots', 'cursive'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .animate-spin-slow {
+            animation: spin 3s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-midnight flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl w-full">
+        <div class="text-center">
+            <!-- Logo -->
+            <div class="mb-8">
+                <img
+                    src="/logo.png"
+                    alt="JDM Heaven Logo"
+                    class="h-24 mx-auto"
+                />
+            </div>
+
+            <!-- Main Content -->
+            <div class="bg-black/30 backdrop-blur-sm p-8 sm:p-12 rounded-lg mb-8">
+                <div class="flex justify-center mb-6">
+                    <div class="w-16 h-16 bg-racing-red/10 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-racing-red animate-spin-slow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4V2m0 20v-2m7-7h2M4 13H2m17.5-7.5l-1.42 1.42M5.93 18.07l-1.42 1.42m12.56 0l-1.42-1.42M5.93 5.93L4.51 4.51M15 13a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h1 class="font-zen text-4xl sm:text-5xl md:text-6xl text-racing-red mb-4">
+                    Under Maintenance
+                </h1>
+
+                <p class="text-white text-lg sm:text-xl max-w-2xl mx-auto mb-8">
+                    We're tuning up our website to bring you an even better JDM experience.
+                    Just like a perfectly balanced engine, we'll be back running at peak performance soon.
+                </p>
+
+                <div class="flex items-center justify-center gap-2 text-white/70 mb-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Estimated completion: 2-3 hours</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a
+                        href="https://instagram.com/jdmheaven"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-racing-red text-white rounded-none hover:bg-red-700 transition font-zen"
+                    >
+                        Follow Our Updates
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <a
+                        href="mailto:support@jdmheaven.club"
+                        class="inline-flex items-center justify-center px-6 py-3 bg-white/10 text-white rounded-none hover:bg-white/20 transition font-zen"
+                    >
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <p class="text-white/50 text-sm">
+                Thank you for your patience. We're making JDM Heaven even better for you.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

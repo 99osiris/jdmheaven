@@ -24,7 +24,15 @@
   status = 301
   force = true
 
-# SPA Fallback
+# Maintenance mode redirect
+[[redirects]]
+  from = "/*"
+  to = "/maintenance.html"
+  status = 200
+  force = true
+  conditions = { maintenance_mode = true }
+
+# Normal routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

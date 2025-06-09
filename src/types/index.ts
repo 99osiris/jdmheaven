@@ -6,12 +6,12 @@ export interface Car {
   year: number;
   price: number;
   mileage?: number;
-  engine_type?: string;
+  engine_type: string;
   engine_size?: string;
   transmission_type: 'manual' | 'automatic' | 'semi-automatic';
   drivetrain_type: '2WD' | '4WD' | 'AWD' | 'RWD' | 'FWD';
   handling: 'left' | 'right';
-  horsepower?: number;
+  horsepower: number;
   torque?: string;
   color?: string;
   location?: string;
@@ -20,7 +20,9 @@ export interface Car {
   features?: string[];
   created_at: string;
   updated_at: string;
-  images?: CarImage[];
+  images: Array<{
+    url: string;
+  }>;
   specs?: CarSpec[];
 }
 

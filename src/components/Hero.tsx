@@ -7,6 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,33 +15,76 @@ const Hero = () => {
   };
 
   useEffect(() => {
-    // Create YouTube Player
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    let isMounted = true;
 
-    // Initialize player when API is ready
-    window.onYouTubeIframeAPIReady = () => {
-      new window.YT.Player('hero-video', {
-        videoId: '31kplxJn6nw',
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          controls: 0,
-          showinfo: 0,
-          mute: 1,
-          rel: 0,
-          playsinline: 1,
-          playlist: '31kplxJn6nw'
-        },
-        events: {
-          onReady: (event) => {
-            event.target.playVideo();
-            setVideoLoaded(true);
-          }
+    const loadYouTubeAPI = async () => {
+      try {
+        // Check if API is already loaded
+        if (window.YT) {
+          initializePlayer();
+          return;
         }
-      });
+
+        // Create script tag
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        
+        // Create promise to wait for API to load
+        const apiLoadPromise = new Promise((resolve, reject) => {
+          window.onYouTubeIframeAPIReady = () => resolve(true);
+          tag.onerror = () => reject(new Error('Failed to load YouTube API'));
+          
+          // Set timeout for loading
+          setTimeout(() => reject(new Error('YouTube API load timeout')), 10000);
+        });
+
+        // Add script to page
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+        // Wait for API to load
+        await apiLoadPromise;
+        if (isMounted) initializePlayer();
+      } catch (error) {
+        console.error('Error loading YouTube API:', error);
+        if (isMounted) setVideoError(true);
+      }
+    };
+
+    const initializePlayer = () => {
+      try {
+        new window.YT.Player('hero-video', {
+          videoId: '31kplxJn6nw',
+          playerVars: {
+            autoplay: 1,
+            loop: 1,
+            controls: 0,
+            showinfo: 0,
+            mute: 1,
+            rel: 0,
+            playsinline: 1,
+            playlist: '31kplxJn6nw'
+          },
+          events: {
+            onReady: (event) => {
+              event.target.playVideo();
+              if (isMounted) setVideoLoaded(true);
+            },
+            onError: () => {
+              if (isMounted) setVideoError(true);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing YouTube player:', error);
+        if (isMounted) setVideoError(true);
+      }
+    };
+
+    loadYouTubeAPI();
+
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -50,14 +94,18 @@ const Hero = () => {
       <div className="absolute inset-0 overflow-hidden bg-black">
         {/* Fallback Image */}
         <div 
-          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
+          className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+            videoLoaded && !videoError ? 'opacity-0' : 'opacity-100'
+          }`}
           style={{
-            backgroundImage: 'url("https://performancegarage.com.au/images/blog/6/JDM_Revival.png")',
+            backgroundImage: 'url("/images/hero-fallback.jpg")',
           }}
         />
         
         {/* YouTube Video */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${
+          videoLoaded && !videoError ? 'opacity-100' : 'opacity-0'
+        }`}>
           <div className="relative w-full h-full">
             <div id="hero-video" className="absolute w-[300%] h-[300%] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
           </div>

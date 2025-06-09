@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import Hero from '../components/Hero';
 import { JDMLegendsCarousel } from '../components/JDMLegendsCarousel';
 import FeaturedCars from '../components/FeaturedCars';
@@ -8,14 +9,20 @@ import ContactSection from '../components/ContactSection';
 
 const HomePage = () => {
   return (
-    <main>
-      <Hero />
-      <JDMLegendsCarousel />
-      <FeaturedCars />
-      <Services />
-      <AboutUs />
-      <ContactSection />
-    </main>
+    <>
+      <Helmet>
+        <title>JDM Heaven - Premium Japanese Car Imports</title>
+        <meta name="description" content="Your gateway to authentic Japanese performance cars in Europe. Premium imports, expert service, passion delivered." />
+      </Helmet>
+      <main>
+        <Hero />
+        <JDMLegendsCarousel />
+        <FeaturedCars />
+        <Services />
+        <AboutUs />
+        <ContactSection />
+      </main>
+    </>
   );
 };
 

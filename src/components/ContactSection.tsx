@@ -1,12 +1,8 @@
-import React from 'react';
-import { Phone, Mail, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
+import { Phone, Mail, MapPin, Clock, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import { supabase } from '../lib/supabase';
+import { toast } from './Toast';
 
 type ContactFormData = {
   name: string;
@@ -18,20 +14,25 @@ type ContactFormData = {
 };
 
 const ContactSection = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<ContactFormData>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>();
 
   const onSubmit = async (data: ContactFormData) => {
     try {
+      setIsSubmitting(true);
       const { error } = await supabase
         .from('contact_submissions')
         .insert([data]);
 
       if (error) throw error;
 
-      alert('Thank you for your message. We will get back to you soon!');
+      toast.success('Thank you for your message. We will get back to you soon!');
+      reset(); // Reset form after successful submission
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('There was an error submitting your message. Please try again.');
+      toast.error('There was an error submitting your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -52,8 +53,16 @@ const ContactSection = () => {
                 </label>
                 <input
                   type="text"
-                  {...register("name", { required: "Name is required" })}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  id="name"
+                  disabled={isSubmitting}
+                  {...register("name", { 
+                    required: "Name is required",
+                    minLength: {
+                      value: 2,
+                      message: "Name must be at least 2 characters"
+                    }
+                  })}
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-racing-red">{errors.name.message}</p>
@@ -66,6 +75,8 @@ const ContactSection = () => {
                 </label>
                 <input
                   type="email"
+                  id="email"
+                  disabled={isSubmitting}
                   {...register("email", { 
                     required: "Email is required",
                     pattern: {
@@ -73,7 +84,7 @@ const ContactSection = () => {
                       message: "Invalid email address"
                     }
                   })}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-racing-red">{errors.email.message}</p>
@@ -86,9 +97,19 @@ const ContactSection = () => {
                 </label>
                 <input
                   type="tel"
-                  {...register("phone")}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  id="phone"
+                  disabled={isSubmitting}
+                  {...register("phone", {
+                    pattern: {
+                      value: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
+                      message: "Invalid phone number"
+                    }
+                  })}
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-racing-red">{errors.phone.message}</p>
+                )}
               </div>
 
               <div>
@@ -97,8 +118,16 @@ const ContactSection = () => {
                 </label>
                 <input
                   type="text"
-                  {...register("subject", { required: "Subject is required" })}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  id="subject"
+                  disabled={isSubmitting}
+                  {...register("subject", { 
+                    required: "Subject is required",
+                    minLength: {
+                      value: 5,
+                      message: "Subject must be at least 5 characters"
+                    }
+                  })}
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
                 {errors.subject && (
                   <p className="mt-1 text-sm text-racing-red">{errors.subject.message}</p>
@@ -111,8 +140,10 @@ const ContactSection = () => {
                 </label>
                 <input
                   type="text"
+                  id="carReference"
+                  disabled={isSubmitting}
                   {...register("carReference")}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
               </div>
 
@@ -121,9 +152,17 @@ const ContactSection = () => {
                   Message
                 </label>
                 <textarea
-                  {...register("message", { required: "Message is required" })}
+                  id="message"
+                  disabled={isSubmitting}
+                  {...register("message", { 
+                    required: "Message is required",
+                    minLength: {
+                      value: 10,
+                      message: "Message must be at least 10 characters"
+                    }
+                  })}
                   rows={4}
-                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red"
+                  className="mt-1 block w-full rounded-none bg-black/30 border border-gray-700 text-white shadow-sm focus:border-racing-red focus:ring-racing-red disabled:opacity-50 disabled:cursor-not-allowed transition"
                 ></textarea>
                 {errors.message && (
                   <p className="mt-1 text-sm text-racing-red">{errors.message.message}</p>
@@ -132,9 +171,17 @@ const ContactSection = () => {
 
               <button
                 type="submit"
-                className="w-full bg-racing-red text-white py-3 px-6 rounded-none hover:bg-red-700 transition font-zen"
+                disabled={isSubmitting}
+                className="w-full bg-racing-red text-white py-3 px-6 rounded-none hover:bg-red-700 transition font-zen disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                Send Message
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Message'
+                )}
               </button>
             </form>
           </div>

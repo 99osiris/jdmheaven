@@ -1,58 +1,50 @@
 import React, { useState } from 'react';
-import { Search, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Search } from 'lucide-react';
 
-export const VinDecoderQuick = () => {
-  const navigate = useNavigate();
+export const VinDecoderQuick: React.FC = () => {
   const [vin, setVin] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
-    if (vin.length !== 17) {
-      setError('VIN must be 17 characters long');
-      return;
+    if (vin.trim()) {
+      navigate(`/vin-decoder?vin=${encodeURIComponent(vin.trim())}`);
     }
-
-    navigate(`/vin-decoder?vin=${vin}`);
-  };
-
-  const handleVinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase();
-    setVin(value);
-    setError(null);
   };
 
   return (
-    <div className="bg-midnight p-6 rounded-none">
-      <h2 className="text-xl font-zen text-white mb-4">VIN Decoder</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
+    <div className="bg-white/10 backdrop-blur-sm p-6 rounded-none border border-white/20">
+      <h3 className="text-xl font-zen mb-4 text-racing-red">Quick VIN Check</h3>
+      <p className="text-sm mb-4 text-gray-300">
+        Decode your Japanese vehicle's VIN number instantly
+      </p>
+      
+      <form onSubmit={handleSubmit}>
+        <div className="relative mb-4">
           <input
             type="text"
+            placeholder="Enter VIN number..."
+            className="w-full py-3 px-4 pl-10 bg-white/10 text-white placeholder-gray-300 border border-white/20 rounded-none focus:outline-none focus:ring-2 focus:ring-racing-red transition"
             value={vin}
-            onChange={handleVinChange}
-            placeholder="Enter 17-digit VIN number"
-            className="w-full py-3 px-4 pl-12 bg-black/30 text-white placeholder-gray-400 border border-gray-700 rounded-none focus:outline-none focus:ring-2 focus:ring-racing-red"
+            onChange={(e) => setVin(e.target.value.toUpperCase())}
             maxLength={17}
           />
-          <Search className="absolute left-4 top-3.5 text-gray-400" />
+          <Search className="absolute left-3 top-3.5 text-gray-300" size={16} />
         </div>
-        {error && (
-          <div className="flex items-center text-red-500 text-sm">
-            <AlertTriangle className="w-4 h-4 mr-2" />
-            {error}
-          </div>
-        )}
+        
         <button
           type="submit"
-          className="w-full bg-racing-red text-white py-3 font-zen hover:bg-red-700 transition"
+          className="w-full bg-racing-red text-white py-3 rounded-none hover:bg-red-700 transition font-zen text-sm"
+          disabled={!vin.trim()}
         >
           Decode VIN
         </button>
       </form>
+      
+      <p className="text-xs mt-4 text-gray-400">
+        Get detailed information about your vehicle's make, model, year, and more.
+      </p>
     </div>
   );
 };

@@ -1,45 +1,64 @@
 import React, { useState } from 'react';
+import { ImageOff } from 'lucide-react';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
-  alt: string;
-  className?: string;
+  fallback?: string;
+  aspectRatio?: 'square' | '16/9' | '4/3' | 'auto';
 }
 
 export const Image: React.FC<ImageProps> = ({
   src,
   alt,
+  fallback = '/images/placeholder.jpg',
   className = '',
+  aspectRatio = 'auto',
   ...props
 }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  // Handle image load success
-  const handleLoad = () => {
-    setIsLoaded(true);
-    setError(false);
+  const aspectRatioClasses = {
+    square: 'aspect-square',
+    '16/9': 'aspect-video',
+    '4/3': 'aspect-4/3',
+    'auto': ''
   };
 
-  // Handle image load error
+  const handleLoad = () => {
+    setIsLoading(false);
+  };
+
   const handleError = () => {
+    setIsLoading(false);
     setError(true);
-    setIsLoaded(true);
   };
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden ${aspectRatioClasses[aspectRatio]} ${className}`}>
+      {/* Main Image */}
       <img
-        src={src}
+        src={error ? fallback : src}
         alt={alt}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
         onLoad={handleLoad}
         onError={handleError}
-        className={`w-full h-full object-cover ${error ? 'hidden' : ''}`}
         {...props}
       />
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+      )}
+
+      {/* Error State */}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-          <span className="text-gray-400">Failed to load image</span>
+          <div className="text-center">
+            <ImageOff className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+            <p className="text-sm text-gray-500">Failed to load image</p>
+          </div>
         </div>
       )}
     </div>

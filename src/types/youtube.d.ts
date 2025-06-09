@@ -22,7 +22,9 @@ interface YT {
   };
 }
 
-interface Window {
-  YT: YT;
-  onYouTubeIframeAPIReady: () => void;
+declare global {
+  interface Window {
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
+  }
 }

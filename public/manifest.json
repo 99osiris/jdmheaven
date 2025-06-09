@@ -1,11 +1,6 @@
 {
-  "name": "JDM HEAVEN",
-  "short_name": "JDM HEAVEN",
-  "description": "Premium Japanese Car Imports",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#FF0000",
+  "short_name": "JDM Heaven",
+  "name": "JDM Heaven - Premium Japanese Car Imports",
   "icons": [
     {
       "src": "/logo-icon.png",
@@ -13,9 +8,13 @@
       "type": "image/png"
     },
     {
-      "src": "/logo.png",
+      "src": "/logo-icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FF0000",
+  "background_color": "#121212"
 }

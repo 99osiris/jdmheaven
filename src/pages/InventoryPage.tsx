@@ -9,6 +9,8 @@ import { InventoryFilters, FilterValues } from '../components/InventoryFilters';
 import { InventoryStatus } from '../components/InventoryStatus';
 import { QuickFilterChips, QuickFilter } from '../components/QuickFilterChips';
 import { RecentlyViewed } from '../components/RecentlyViewed';
+import { QuickViewModal } from '../components/QuickViewModal';
+import { FilterPresets } from '../components/FilterPresets';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { analytics } from '../lib/analytics';
@@ -27,6 +29,7 @@ const InventoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [compareList, setCompareList] = useState<Car[]>([]);
+  const [quickViewCar, setQuickViewCar] = useState<Car | null>(null);
   const [filters, setFilters] = useState<FilterValues>({
     make: '',
     model: '',
@@ -42,6 +45,9 @@ const InventoryPage = () => {
     engineType: '',
     horsepowerMin: '',
     horsepowerMax: '',
+    status: '',
+    conditionGrade: '',
+    location: '',
   });
 
   // Quick filter handlers
@@ -167,6 +173,9 @@ const InventoryPage = () => {
       engineType: '',
       horsepowerMin: '',
       horsepowerMax: '',
+      status: '',
+      conditionGrade: '',
+      location: '',
     });
     toast.success('Filters reset');
   };
@@ -192,6 +201,8 @@ const InventoryPage = () => {
     const matchesEngine = !filters.engineType || car.engine_type?.includes(filters.engineType);
     const matchesHorsepower = (!filters.horsepowerMin || (car.horsepower || 0) >= parseInt(filters.horsepowerMin)) &&
                              (!filters.horsepowerMax || (car.horsepower || 0) <= parseInt(filters.horsepowerMax));
+    const matchesStatus = !filters.status || car.status === filters.status;
+    const matchesLocation = !filters.location || car.location === filters.location;
 
     return matchesSearch &&
            matchesMake &&
@@ -203,7 +214,9 @@ const InventoryPage = () => {
            matchesTransmission &&
            matchesDrivetrain &&
            matchesEngine &&
-           matchesHorsepower;
+           matchesHorsepower &&
+           matchesStatus &&
+           matchesLocation;
   });
 
   if (error) {
@@ -244,6 +257,11 @@ const InventoryPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <FilterPresets
+          filters={filters}
+          onApply={setFilters}
+        />
+        
         <QuickFilterChips
           filters={quickFilters}
           onClear={resetFilters}
@@ -277,6 +295,7 @@ const InventoryPage = () => {
                     car={car}
                     onAddToCompare={handleAddToCompare}
                     isInCompare={compareList.some(c => c.id === car.id)}
+                    onQuickView={setQuickViewCar}
                   />
                 ))}
               </div>
@@ -305,6 +324,12 @@ const InventoryPage = () => {
         onRemove={handleRemoveFromCompare}
         onClose={() => setCompareList([])}
         onSave={handleSaveComparison}
+      />
+
+      <QuickViewModal
+        car={quickViewCar}
+        isOpen={!!quickViewCar}
+        onClose={() => setQuickViewCar(null)}
       />
     </div>
   );

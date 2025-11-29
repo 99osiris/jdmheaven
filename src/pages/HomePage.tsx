@@ -6,6 +6,7 @@ import FeaturedCars from '../components/FeaturedCars';
 import Services from '../components/Services';
 import AboutUs from '../components/AboutUs';
 import ContactSection from '../components/ContactSection';
+import { TrustBadges } from '../components/TrustBadges';
 
 const HomePage = () => {
   return (
@@ -17,6 +18,7 @@ const HomePage = () => {
       <main>
         <Hero />
         <JDMLegendsCarousel />
+        <TrustBadges />
         <FeaturedCars />
         <Services />
         <AboutUs />

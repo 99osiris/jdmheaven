@@ -98,6 +98,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: createRouteElement(HomePage, 'home') },
       { path: 'inventory', element: createRouteElement(InventoryPage, 'inventory') },
+      { path: 'inventory/:reference_number', element: createRouteElement(() => import('./pages/CarDetailPage'), 'car-detail') },
       { path: 'import-process', element: createRouteElement(ImportProcessPage, 'import-process') },
       { path: 'about', element: createRouteElement(AboutPage, 'about') },
       { path: 'contact', element: createRouteElement(ContactPage, 'contact') },

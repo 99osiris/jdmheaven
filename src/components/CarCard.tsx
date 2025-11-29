@@ -11,9 +11,10 @@ interface CarCardProps {
   car: Car;
   onAddToCompare?: (car: Car) => void;
   isInCompare?: boolean;
+  onQuickView?: (car: Car) => void;
 }
 
-export const CarCard: React.FC<CarCardProps> = ({ car, onAddToCompare, isInCompare }) => {
+export const CarCard: React.FC<CarCardProps> = ({ car, onAddToCompare, isInCompare, onQuickView }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isInWishlist, toggleWishlist, addToCart } = useAccount();
@@ -116,7 +117,7 @@ export const CarCard: React.FC<CarCardProps> = ({ car, onAddToCompare, isInCompa
             car.status === 'reserved' ? 'bg-info' :
             'bg-charcoal'
           }`}>
-            {statusDisplay.toUpperCase()}
+            {(car.status?.replace(/_/g, ' ') || 'AVAILABLE').toUpperCase()}
           </div>
         </div>
         <div className="absolute top-4 left-4 flex space-x-2">

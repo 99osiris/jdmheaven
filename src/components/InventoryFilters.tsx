@@ -16,6 +16,9 @@ export interface FilterValues {
   engineType: string;
   horsepowerMin: string;
   horsepowerMax: string;
+  status: string;
+  conditionGrade: string;
+  location: string;
 }
 
 interface InventoryFiltersProps {
@@ -29,6 +32,9 @@ const HANDLING = ['left', 'right'];
 const TRANSMISSION = ['manual', 'automatic', 'semi-automatic'];
 const DRIVETRAIN = ['2WD', '4WD', 'AWD', 'RWD', 'FWD'];
 const ENGINE_TYPES = ['RB26DETT', '2JZ-GTE', '13B-REW', 'C32B', '4G63T', 'EJ20'];
+const STATUS = ['available', 'in_transit', 'reserved', 'sold'];
+const CONDITION_GRADES = ['S', '4.5', '4', '3.5', '3', '2.5', '2', '1.5', '1', 'R'];
+const LOCATIONS = ['Japan', 'Port', 'In Transit', 'EU Warehouse'];
 
 export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
   filters,
@@ -222,6 +228,51 @@ export const InventoryFilters: React.FC<InventoryFiltersProps> = ({
                   className="w-full border-gray-300 rounded-none focus:border-racing-red focus:ring-racing-red"
                 />
               </div>
+            </div>
+
+            {/* JDM-Specific Filters */}
+            <div>
+              <label className="block text-sm font-zen text-gray-700 mb-2">Status</label>
+              <select
+                value={filters.status}
+                onChange={(e) => handleChange('status', e.target.value)}
+                className="w-full border-gray-300 rounded-none focus:border-racing-red focus:ring-racing-red"
+              >
+                <option value="">All Status</option>
+                {STATUS.map((status) => (
+                  <option key={status} value={status}>
+                    {status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-zen text-gray-700 mb-2">Condition Grade</label>
+              <select
+                value={filters.conditionGrade}
+                onChange={(e) => handleChange('conditionGrade', e.target.value)}
+                className="w-full border-gray-300 rounded-none focus:border-racing-red focus:ring-racing-red"
+              >
+                <option value="">All Grades</option>
+                {CONDITION_GRADES.map((grade) => (
+                  <option key={grade} value={grade}>Grade {grade}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-zen text-gray-700 mb-2">Location</label>
+              <select
+                value={filters.location}
+                onChange={(e) => handleChange('location', e.target.value)}
+                className="w-full border-gray-300 rounded-none focus:border-racing-red focus:ring-racing-red"
+              >
+                <option value="">All Locations</option>
+                {LOCATIONS.map((location) => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
             </div>
           </div>
 

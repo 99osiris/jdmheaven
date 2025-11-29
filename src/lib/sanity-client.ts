@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import { createImageUrlBuilder } from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 // Validate required environment variables
 const validateConfig = () => {
@@ -63,7 +63,7 @@ const createFallbackClient = () => {
 export const sanityClient = createSanityClient();
 
 // Set up image URL builder
-const builder = imageUrlBuilder(sanityClient);
+const builder = createImageUrlBuilder(sanityClient);
 
 // Helper function to generate image URLs
 export const urlFor = (source: SanityImageSource) => {

@@ -1,6 +1,6 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import { createImageUrlBuilder } from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 // Validate required environment variables
 const validateConfig = () => {
@@ -58,9 +58,9 @@ export const createSanityClient = () => {
 export const sanityClient = createSanityClient();
 
 // Set up image URL builder
-let builder: ReturnType<typeof imageUrlBuilder> | null = null;
+let builder: ReturnType<typeof createImageUrlBuilder> | null = null;
 try {
-  builder = imageUrlBuilder(sanityClient);
+  builder = createImageUrlBuilder(sanityClient);
 } catch (error) {
   console.warn('Failed to initialize Sanity image builder:', error);
 }

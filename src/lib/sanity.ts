@@ -15,47 +15,82 @@ const validateConfig = () => {
     .map(([key]) => key);
 
   if (missingVars.length > 0) {
-    throw new Error(
+    console.warn(
       `Missing required Sanity configuration: ${missingVars.join(', ')}. ` +
-      'Please check your environment variables.'
+      'Please check your environment variables. CMS features will be disabled.'
     );
+    return false;
   }
+
+  return true;
+};
+
+// Create a fallback client that returns empty data instead of throwing errors
+const createFallbackClient = () => {
+  return {
+    fetch: () => Promise.resolve(null),
+    // Add other methods as needed
+  } as any;
 };
 
 // Create a Sanity client with validation
 export const createSanityClient = () => {
   try {
-    validateConfig();
+    const isConfigValid = validateConfig();
+    
+    if (!isConfigValid) {
+      return createFallbackClient();
+    }
     
     return createClient({
-      projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-      dataset: import.meta.env.VITE_SANITY_DATASET,
+      projectId: import.meta.env.VITE_SANITY_PROJECT_ID || '',
+      dataset: import.meta.env.VITE_SANITY_DATASET || 'production',
       apiVersion: '2023-05-03',
-      useCdn: process.env.NODE_ENV === 'production',
+      useCdn: import.meta.env.PROD,
       token: import.meta.env.VITE_SANITY_TOKEN,
     });
   } catch (error) {
     console.error('Failed to initialize Sanity client:', error);
-    // Return a dummy client that throws helpful errors
-    return new Proxy({}, {
-      get: () => () => {
-        throw new Error(
-          'Sanity client is not properly configured. ' +
-          'Please ensure all required environment variables are set.'
-        );
-      }
-    });
+    return createFallbackClient();
   }
 };
 
 export const sanityClient = createSanityClient();
 
 // Set up image URL builder
-const builder = imageUrlBuilder(sanityClient);
+let builder: ReturnType<typeof imageUrlBuilder> | null = null;
+try {
+  builder = imageUrlBuilder(sanityClient);
+} catch (error) {
+  console.warn('Failed to initialize Sanity image builder:', error);
+}
 
 // Helper function to generate image URLs
 export const urlFor = (source: SanityImageSource) => {
-  return builder.image(source);
+  if (!builder || !source) {
+    return {
+      url: () => '',
+      width: () => ({ url: () => '', height: () => ({ url: () => '' }) }),
+      height: () => ({ url: () => '' }),
+      auto: () => ({ url: () => '', fit: () => ({ quality: () => ({ url: () => '' }) }) }),
+      fit: () => ({ quality: () => ({ url: () => '' }) }),
+      quality: () => ({ url: () => '' }),
+    };
+  }
+  
+  try {
+    return builder.image(source);
+  } catch (error) {
+    console.error('Error creating image URL:', error);
+    return {
+      url: () => '',
+      width: () => ({ url: () => '', height: () => ({ url: () => '' }) }),
+      height: () => ({ url: () => '' }),
+      auto: () => ({ url: () => '', fit: () => ({ quality: () => ({ url: () => '' }) }) }),
+      fit: () => ({ quality: () => ({ url: () => '' }) }),
+      quality: () => ({ url: () => '' }),
+    };
+  }
 };
 
 // Helper function to handle errors
@@ -66,7 +101,7 @@ export const handleSanityError = (error: any) => {
   if (error.message?.includes('configuration')) {
     return { 
       error: 'CMS configuration error. Please contact support.',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: import.meta.env.DEV ? error.message : undefined
     };
   }
   
@@ -87,6 +122,6 @@ export const handleSanityError = (error: any) => {
   // Generic error with more context
   return { 
     error: 'Unable to load content. Please try again later.',
-    details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: import.meta.env.DEV ? error.message : undefined
   };
 };

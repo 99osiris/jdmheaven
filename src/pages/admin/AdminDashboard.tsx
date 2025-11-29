@@ -7,6 +7,8 @@ import { SalesChart } from '../../components/admin/SalesChart';
 import { QuickActions } from '../../components/admin/QuickActions';
 import { DataTable } from '../../components/admin/DataTable';
 import { SearchInput } from '../../components/admin/SearchInput';
+import { ConnectionStatus } from '../../components/ConnectionStatus';
+import { SanitySyncTest } from '../../components/SanitySyncTest';
 import { supabase } from '../../lib/supabase';
 
 const AdminDashboard = () => {
@@ -166,8 +168,15 @@ const AdminDashboard = () => {
     <div className="pt-20">
       <div className="bg-midnight text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-zen mb-6">Admin Dashboard</h1>
-          <p className="text-xl text-gray-300">Welcome back, {user.user_metadata?.full_name || user.email}</p>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-4xl font-zen mb-2">Admin Dashboard</h1>
+              <p className="text-xl text-gray-300">Welcome back, {user.user_metadata?.full_name || user.email}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <ConnectionStatus showDetails={false} className="text-white" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -224,6 +233,11 @@ const AdminDashboard = () => {
             </div>
 
             <QuickActions />
+
+            <div className="bg-white shadow-lg rounded-none p-6">
+              <h2 className="text-xl font-bold mb-4">Sanity ↔ Supabase Sync</h2>
+              <SanitySyncTest />
+            </div>
           </div>
         )}
       </div>

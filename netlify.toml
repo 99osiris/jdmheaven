@@ -1,10 +1,16 @@
+# Netlify Configuration for JDM Heaven
+# Website: jdmheaven.club
+
 [build]
   command = "npm run build"
   publish = "dist"
+  # Note: Supabase Edge Functions are deployed separately via Supabase CLI
+  # Netlify Functions would go in netlify/functions if needed
 
-# Custom domain configuration
+# Build environment
 [build.environment]
   NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # Security Headers
 [[headers]]
@@ -12,9 +18,11 @@
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self' https://hwqanehwtpxfwokmhnpz.supabase.co https://*.netlify.app https://cdn.tailwindcss.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.unsplash.com https://*.supabase.co https://www.google-analytics.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://hwqanehwtpxfwokmhnpz.supabase.co https://www.google-analytics.com; frame-ancestors 'none';"
+    # CSP - Update with your actual Supabase URL
+    Content-Security-Policy = "default-src 'self' https://*.supabase.co https://*.netlify.app https://cdn.sanity.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://cdn.sanity.io https://*.google-analytics.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.sanity.io https://www.google-analytics.com https://vpic.nhtsa.dot.gov; frame-ancestors 'none';"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
 
 # Redirect all HTTP to HTTPS
@@ -24,22 +32,58 @@
   status = 301
   force = true
 
-# Maintenance mode redirect
+# Maintenance mode (only when NETLIFY_MAINTENANCE_MODE=true)
+# This redirect takes precedence over _redirects file when condition is met
 [[redirects]]
   from = "/*"
   to = "/maintenance.html"
   status = 200
   force = true
-  conditions = { maintenance_mode = true }
+  conditions = { Environment = "NETLIFY_MAINTENANCE_MODE", Value = "true" }
 
-# Normal routing
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Note: SPA routing is handled by public/_redirects file
+# The maintenance mode redirect above will override it when enabled
 
 # Cache Control for Static Assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# No cache for HTML files
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# API proxy (if needed)
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://your-api.com/:splat"
+#   status = 200
+#   force = true

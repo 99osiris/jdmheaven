@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
 import { toast } from '../components/Toast';
 
 interface AuthContextType {
@@ -23,7 +22,6 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   const refreshUser = async () => {
     try {
@@ -35,9 +33,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    // Test Supabase connection on startup
+    const checkConnection = async () => {
+      try {
+        const { testSupabaseConnection } = await import('../lib/supabase');
+        const status = await testSupabaseConnection();
+        
+        if (!status.configured) {
+          console.warn('⚠️ Supabase is not configured. Authentication features will not work.');
+        } else if (!status.connected) {
+          console.warn('⚠️ Supabase connection failed:', status.error);
+        } else {
+          console.log('✅ Supabase connected successfully');
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not test Supabase connection:', error);
+      }
+    };
+
+    checkConnection();
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+      }
       setUser(session?.user ?? null);
+      setLoading(false);
+    }).catch((error) => {
+      console.error('Failed to get session:', error);
       setLoading(false);
     });
 
@@ -48,12 +72,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // If we have a user but no role in metadata, set default role
       if (currentUser && !currentUser.user_metadata.role) {
-        await supabase.auth.updateUser({
-          data: { role: 'user' }
-        });
-        
-        // Refresh user to get updated metadata
-        refreshUser();
+        try {
+          await supabase.auth.updateUser({
+            data: { role: 'user' }
+          });
+          
+          // Refresh user to get updated metadata
+          refreshUser();
+        } catch (error) {
+          console.error('Error updating user role:', error);
+        }
       }
 
       setLoading(false);
@@ -66,8 +94,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
       setUser(null);
-      navigate('/');
       toast.success('Successfully signed out');
+      // Use window.location for navigation to avoid router context issues
+      if (typeof window !== 'undefined') {
+        window.location.pathname = '/';
+      }
     } catch (error) {
       console.error('Error signing out:', error);
       toast.error('Failed to sign out');

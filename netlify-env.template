@@ -1,0 +1,59 @@
+# Netlify Environment Variables Template
+# Copy these to your Netlify site settings or use: netlify env:set VARIABLE_NAME "value"
+
+# ============================================
+# REQUIRED VARIABLES
+# ============================================
+
+# Supabase Configuration
+# Get these from: https://app.supabase.com/project/_/settings/api
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key-here
+
+# Sanity CMS Configuration
+# Get these from: https://www.sanity.io/manage
+VITE_SANITY_PROJECT_ID=your-sanity-project-id
+VITE_SANITY_DATASET=car-inventory
+VITE_SANITY_TOKEN=your-sanity-api-token
+
+# ============================================
+# OPTIONAL VARIABLES
+# ============================================
+
+# Google Analytics
+# Get from: https://analytics.google.com
+VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+# Maintenance Mode
+# Set to "true" to enable maintenance page
+NETLIFY_MAINTENANCE_MODE=false
+
+# ============================================
+# HOW TO SET THESE IN NETLIFY
+# ============================================
+
+# Method 1: Via Netlify CLI
+# netlify env:set VITE_SUPABASE_URL "https://your-project.supabase.co"
+# netlify env:set VITE_SUPABASE_ANON_KEY "your-key"
+# netlify env:set VITE_SANITY_PROJECT_ID "your-project-id"
+# netlify env:set VITE_SANITY_DATASET "car-inventory"
+# netlify env:set VITE_SANITY_TOKEN "your-token"
+
+# Method 2: Via Netlify Dashboard
+# 1. Go to your site in Netlify Dashboard
+# 2. Site settings → Environment variables
+# 3. Add each variable with its value
+# 4. Click "Save"
+
+# ============================================
+# NOTES
+# ============================================
+
+# - All VITE_* variables are exposed to the client-side code
+# - Never commit actual values to git
+# - Use Netlify's environment variable management for production
+# - You can set different values for different contexts:
+#   - Production (default)
+#   - Deploy previews
+#   - Branch deploys
+

@@ -20,6 +20,7 @@
     "@tiptap/starter-kit": "^2.2.4",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.0.8",
+    "groq": "^4.19.0",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-beautiful-dnd": "^13.1.1",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@babel/code-frame": "^7.24.2",
     "@eslint/js": "^9.9.1",
+    "@sanity/cli": "^4.19.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",

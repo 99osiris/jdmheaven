@@ -70,65 +70,73 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 };
 
 // Wrap component with Suspense and ErrorBoundary
-const withSuspense = (Component: React.ComponentType, name: string) => {
-  return (
+const withSuspense = (Component: React.ComponentType, name: string): React.ComponentType => {
+  const WrappedComponent = () => (
     <ErrorBoundaryWrapper name={name}>
       <Suspense fallback={<LoadingState fullScreen message={`Loading ${name}...`} />}>
         <Component />
       </Suspense>
     </ErrorBoundaryWrapper>
   );
+  WrappedComponent.displayName = `withSuspense(${name})`;
+  return WrappedComponent;
+};
+
+// Helper to create route element
+const createRouteElement = (Component: React.ComponentType, name: string) => {
+  const Wrapped = withSuspense(Component, name);
+  return <Wrapped />;
 };
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: withSuspense(RootLayout, 'layout'),
+    element: createRouteElement(RootLayout, 'layout'),
     children: [
-      { index: true, element: withSuspense(HomePage, 'home') },
-      { path: 'inventory', element: withSuspense(InventoryPage, 'inventory') },
-      { path: 'import-process', element: withSuspense(ImportProcessPage, 'import-process') },
-      { path: 'about', element: withSuspense(AboutPage, 'about') },
-      { path: 'contact', element: withSuspense(ContactPage, 'contact') },
-      { path: 'blog', element: withSuspense(BlogPage, 'blog') },
-      { path: 'blog/:slug', element: withSuspense(BlogPostPage, 'blog-post') },
-      { path: 'privacy-policy', element: withSuspense(PrivacyPolicyPage, 'privacy') },
-      { path: 'terms-of-service', element: withSuspense(TermsOfServicePage, 'terms') },
-      { path: 'auth', element: withSuspense(AuthPage, 'auth') },
-      { path: 'vin-decoder', element: withSuspense(VinDecoderPage, 'vin-decoder') },
+      { index: true, element: createRouteElement(HomePage, 'home') },
+      { path: 'inventory', element: createRouteElement(InventoryPage, 'inventory') },
+      { path: 'import-process', element: createRouteElement(ImportProcessPage, 'import-process') },
+      { path: 'about', element: createRouteElement(AboutPage, 'about') },
+      { path: 'contact', element: createRouteElement(ContactPage, 'contact') },
+      { path: 'blog', element: createRouteElement(BlogPage, 'blog') },
+      { path: 'blog/:slug', element: createRouteElement(BlogPostPage, 'blog-post') },
+      { path: 'privacy-policy', element: createRouteElement(PrivacyPolicyPage, 'privacy') },
+      { path: 'terms-of-service', element: createRouteElement(TermsOfServicePage, 'terms') },
+      { path: 'auth', element: createRouteElement(AuthPage, 'auth') },
+      { path: 'vin-decoder', element: createRouteElement(VinDecoderPage, 'vin-decoder') },
       { 
         path: 'custom-request', 
-        element: <AuthGuard>{withSuspense(CustomRequestPage, 'custom-request')}</AuthGuard> 
+        element: <AuthGuard>{createRouteElement(CustomRequestPage, 'custom-request')}</AuthGuard> 
       },
       { 
         path: 'dashboard',
-        element: <AuthGuard>{withSuspense(DashboardPage, 'dashboard')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(DashboardPage, 'dashboard')}</AuthGuard>
       },
       { 
         path: 'dashboard/wishlist',
-        element: <AuthGuard>{withSuspense(WishlistPage, 'wishlist')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(WishlistPage, 'wishlist')}</AuthGuard>
       },
       { 
         path: 'dashboard/comparisons',
-        element: <AuthGuard>{withSuspense(ComparisonsPage, 'comparisons')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(ComparisonsPage, 'comparisons')}</AuthGuard>
       },
       { 
         path: 'dashboard/alerts',
-        element: <AuthGuard>{withSuspense(AlertsPage, 'alerts')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(AlertsPage, 'alerts')}</AuthGuard>
       },
       { 
         path: 'dashboard/settings',
-        element: <AuthGuard>{withSuspense(SettingsPage, 'settings')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(SettingsPage, 'settings')}</AuthGuard>
       },
       { 
         path: 'comparison/:id',
-        element: <AuthGuard>{withSuspense(ComparisonPage, 'comparison')}</AuthGuard>
+        element: <AuthGuard>{createRouteElement(ComparisonPage, 'comparison')}</AuthGuard>
       },
       
       // Admin Routes
       { 
         path: 'admin',
-        element: <AdminGuard>{withSuspense(AdminDashboard, 'admin-dashboard')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(AdminDashboard, 'admin-dashboard')}</AdminGuard>
       },
       { 
         path: 'admin/supabase-test',
@@ -136,27 +144,27 @@ export const router = createBrowserRouter([
       },
       { 
         path: 'admin/inventory',
-        element: <AdminGuard>{withSuspense(InventoryManager, 'inventory-manager')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(InventoryManager, 'inventory-manager')}</AdminGuard>
       },
       { 
         path: 'admin/blog',
-        element: <AdminGuard>{withSuspense(BlogManager, 'blog-manager')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(BlogManager, 'blog-manager')}</AdminGuard>
       },
       { 
         path: 'admin/users',
-        element: <AdminGuard>{withSuspense(UserManager, 'user-manager')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(UserManager, 'user-manager')}</AdminGuard>
       },
       { 
         path: 'admin/requests',
-        element: <AdminGuard>{withSuspense(RequestManager, 'request-manager')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(RequestManager, 'request-manager')}</AdminGuard>
       },
       { 
         path: 'admin/messages',
-        element: <AdminGuard>{withSuspense(MessageManager, 'message-manager')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(MessageManager, 'message-manager')}</AdminGuard>
       },
       { 
         path: 'admin/settings',
-        element: <AdminGuard>{withSuspense(SystemSettings, 'system-settings')}</AdminGuard>
+        element: <AdminGuard>{createRouteElement(SystemSettings, 'system-settings')}</AdminGuard>
       }
     ]
   }

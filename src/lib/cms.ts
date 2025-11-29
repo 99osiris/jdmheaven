@@ -151,6 +151,95 @@ export const cms = {
     
     return fetchWithCache<any[]>(query);
   },
+
+  // Get all cars from Sanity
+  getCars: async (limit = 50, offset = 0) => {
+    const query = groq`{
+      "cars": *[_type == "car"] | order(createdAt desc) [${offset}...${offset + limit}] {
+        _id,
+        title,
+        slug,
+        stockNumber,
+        brand,
+        model,
+        year,
+        finalPrice,
+        basePrice,
+        status,
+        featured,
+        hotImport,
+        freshArrival,
+        rareUnit,
+        "images": images[]{
+          asset,
+          alt,
+          isPrimary
+        },
+        specs{
+          engine,
+          power,
+          transmission,
+          drivetrain
+        }
+      },
+      "total": count(*[_type == "car"])
+    }`;
+    
+    return fetchWithCache<{ cars: any[]; total: number }>(query);
+  },
+
+  // Get single car by Sanity ID
+  getCar: async (sanityId: string) => {
+    const query = groq`*[_type == "car" && _id == $sanityId][0]{
+      _id,
+      title,
+      slug,
+      stockNumber,
+      brand,
+      model,
+      year,
+      vin,
+      chassisCode,
+      bodyType,
+      exteriorColor,
+      interiorColor,
+      condition,
+      status,
+      importStatus,
+      location,
+      description,
+      "images": images[]{
+        asset,
+        alt,
+        isPrimary
+      },
+      specs{
+        engine,
+        displacement,
+        induction,
+        power,
+        torque,
+        zeroToHundred,
+        topSpeed,
+        weight,
+        drivetrain,
+        transmission,
+        fuelType,
+        fuelConsumption
+      },
+      basePrice,
+      importTax,
+      shippingCost,
+      finalPrice,
+      negotiable,
+      featured,
+      hotImport,
+      freshArrival,
+      rareUnit
+    }`;
+    
+    return fetchWithCache<any>(query, { sanityId });
+  },
   
   // JDM Legends for carousel
   getJdmLegends: async () => {

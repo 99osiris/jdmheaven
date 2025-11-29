@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, Routes, Route } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { DashboardLayout } from '../components/dashboard/DashboardLayout';
+import { EnhancedDashboardLayout } from '../components/dashboard/EnhancedDashboardLayout';
+import { EnhancedDashboardOverview } from '../components/dashboard/EnhancedDashboardOverview';
 import { DashboardWidgets } from '../components/dashboard/DashboardWidgets';
 import { SEO } from '../components/SEO';
 import { ThemeProvider } from '../contexts/ThemeContext';
@@ -34,17 +35,15 @@ const DashboardPage = () => {
                 description="Manage your JDM HEAVEN account, wishlist, and car alerts"
               />
               
-              <Routes>
-                <Route path="/" element={
-                  <DashboardLayout>
-                    <DashboardWidgets />
-                  </DashboardLayout>
-                } />
-                <Route path="/wishlist" element={<WishlistPage />} />
-                <Route path="/comparisons" element={<ComparisonsPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/settings/*" element={<SettingsPage />} />
-              </Routes>
+              <EnhancedDashboardLayout>
+                <Routes>
+                  <Route path="/" element={<EnhancedDashboardOverview />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
+                  <Route path="/comparisons" element={<ComparisonsPage />} />
+                  <Route path="/alerts" element={<AlertsPage />} />
+                  <Route path="/settings/*" element={<SettingsPage />} />
+                </Routes>
+              </EnhancedDashboardLayout>
             </UserDataProvider>
           </AccessibilityProvider>
         </WidgetProvider>

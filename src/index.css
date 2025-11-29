@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Enhanced Design System */
+@import './styles/design-system.css';
+
 /* Base styles */
 :root {
   --color-racing-red: #FF0000;

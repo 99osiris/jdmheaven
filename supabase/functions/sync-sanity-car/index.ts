@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
 import { createClient as createSanityClient } from 'npm:@sanity/client@6.10.0';
-import imageUrlBuilder from 'npm:@sanity/image-url@1.0.2';
+import { createImageUrlBuilder } from 'npm:@sanity/image-url@1.0.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +18,7 @@ const sanityClient = createSanityClient({
   token: Deno.env.get('SANITY_API_TOKEN') || '',
 });
 
-const builder = imageUrlBuilder(sanityClient);
+const builder = createImageUrlBuilder(sanityClient);
 const urlFor = (source: any) => builder.image(source);
 
 // Map Sanity car to Supabase format
@@ -103,19 +103,47 @@ serve(async (req) => {
     let sanityId: string;
     let action: string = 'sync';
 
+    // Sanity webhook can send data in different formats
+    // Format 1: Direct document data with _id
     if (body._id) {
-      // Sanity webhook format
       sanityId = body._id;
-      if (body._deletedAt) {
+      // Check if it's a deletion (Sanity sends _deletedAt for deletions)
+      if (body._deletedAt || body._type === 'deleted') {
         action = 'delete';
       }
-    } else if (body.sanityId) {
-      // Manual sync format
+    }
+    // Format 2: Webhook payload with projectId and documents array
+    else if (body.projectId && body.documents && body.documents.length > 0) {
+      // Sanity webhook sends documents array
+      const doc = body.documents[0];
+      sanityId = doc._id;
+      if (doc._deletedAt) {
+        action = 'delete';
+      }
+    }
+    // Format 3: Manual sync format
+    else if (body.sanityId) {
       sanityId = body.sanityId;
       action = body.action || 'sync';
-    } else {
+    }
+    // Format 4: Sanity webhook with projectId and ids array
+    else if (body.projectId && body.ids && body.ids.length > 0) {
+      sanityId = body.ids[0];
+      // Check mutation type
+      if (body.mutations && body.mutations.length > 0) {
+        const mutation = body.mutations[0];
+        if (mutation.delete || mutation.create?.delete) {
+          action = 'delete';
+        }
+      }
+    }
+    else {
       return new Response(
-        JSON.stringify({ error: 'sanityId or _id is required' }),
+        JSON.stringify({ 
+          error: 'sanityId or _id is required',
+          received: Object.keys(body),
+          body: JSON.stringify(body).substring(0, 500)
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

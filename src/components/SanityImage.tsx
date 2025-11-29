@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { urlFor } from '../lib/sanity-client';
+import { urlFor } from '../lib/sanity';
 import { Image } from './Image';
 import { generateBlurDataUrl } from '../utils/imageOptimization';
 

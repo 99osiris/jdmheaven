@@ -33,3 +33,5 @@ dist-ssr
 .temp
 # Local Netlify folder
 .netlify
+.vercel
+.env*.local

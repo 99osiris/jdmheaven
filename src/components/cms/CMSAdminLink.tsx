@@ -18,10 +18,15 @@ export const CMSAdminLink: React.FC<CMSAdminLinkProps> = ({
   
   if (!isAdmin) return null;
   
-  const sanityProjectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'hwqanehwtpxf';
-  const sanityDataset = import.meta.env.VITE_SANITY_DATASET || 'production';
+  const sanityProjectId = import.meta.env.VITE_SANITY_PROJECT_ID || import.meta.env.SANITY_STUDIO_PROJECT_ID || '';
+  const sanityDataset = import.meta.env.VITE_SANITY_DATASET || 'car-inventory';
   
-  const baseUrl = `https://hwqanehwtpxf.sanity.studio/desk`;
+  if (!sanityProjectId) {
+    console.warn('Sanity project ID not configured');
+    return null;
+  }
+  
+  const baseUrl = `https://${sanityProjectId}.sanity.studio/desk`;
   
   // If we have a specific document ID, link directly to it
   const url = documentId

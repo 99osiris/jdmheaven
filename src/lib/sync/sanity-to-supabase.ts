@@ -2,12 +2,14 @@ import { supabase } from '../supabase';
 import { sanityClient } from '../sanity';
 import groq from 'groq';
 import { urlFor } from '../sanity';
+import type { SanityCar, SanityMaintenanceRecord } from '../../types/sanity';
+import type { CarSpec } from '../api/cms';
 
 /**
  * Maps Sanity car data to Supabase car format
  * Returns both the car data and specs array separately
  */
-export function mapSanityCarToSupabase(sanityCar: any) {
+export function mapSanityCarToSupabase(sanityCar: SanityCar) {
   // Map status from Sanity to Supabase
   const statusMap: Record<string, string> = {
     available: 'available',
@@ -16,7 +18,7 @@ export function mapSanityCarToSupabase(sanityCar: any) {
   };
 
   // Map specs to car_specs format
-  const specs: any[] = [];
+  const specs: CarSpec[] = [];
   if (sanityCar.specs) {
     const spec = sanityCar.specs;
     if (spec.engine) specs.push({ category: 'Engine', name: 'Engine', value: spec.engine });
@@ -43,7 +45,7 @@ export function mapSanityCarToSupabase(sanityCar: any) {
   // Map maintenance records to description or notes
   const maintenanceNotes = sanityCar.maintenanceRecords?.length
     ? `\n\nMaintenance History:\n${sanityCar.maintenanceRecords
-        .map((r: any) => `${new Date(r.date).toLocaleDateString()}: ${r.description}${r.cost ? ` ($${r.cost})` : ''}`)
+        .map((r: SanityMaintenanceRecord) => `${new Date(r.date).toLocaleDateString()}: ${r.description}${r.cost ? ` ($${r.cost})` : ''}`)
         .join('\n')}`
     : '';
 

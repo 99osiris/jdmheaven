@@ -1,22 +1,74 @@
 import { supabase } from '../supabase';
+import { withErrorHandling } from '../../utils/errorHandler';
+
+export interface CarImage {
+  id: string;
+  url: string;
+  is_primary: boolean;
+}
+
+export interface CarSpec {
+  id: string;
+  category: string;
+  name: string;
+  value: string;
+}
+
+export interface Car {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+  mileage?: number;
+  engine_type?: string;
+  engine_size?: string;
+  transmission?: string;
+  drivetrain?: string;
+  horsepower?: number;
+  torque?: number;
+  color?: string;
+  location?: string;
+  status?: string;
+  description?: string;
+  features?: string[];
+  created_at?: string;
+  updated_at?: string;
+  images?: CarImage[];
+  specs?: CarSpec[];
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content?: string;
+  excerpt?: string;
+  author?: string;
+  published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export const cmsApi = {
   cars: {
-    async getAll() {
-      const { data, error } = await supabase
-        .from('cars')
-        .select(`
-          *,
-          images:car_images(id, url, is_primary),
-          specs:car_specs(id, category, name, value)
-        `)
-        .order('created_at', { ascending: false });
+    async getAll(): Promise<Car[]> {
+      return withErrorHandling(async () => {
+        const { data, error } = await supabase
+          .from('cars')
+          .select(`
+            *,
+            images:car_images(id, url, is_primary),
+            specs:car_specs(id, category, name, value)
+          `)
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data || [];
+      }, 'Failed to fetch cars');
     },
 
-    async create(car: any, images: any[], specs: any[]) {
+    async create(car: Partial<Car>, images: CarImage[] = [], specs: CarSpec[] = []): Promise<Car> {
       try {
         // Ensure images and specs are properly formatted as arrays
         const imageData = Array.isArray(images) ? images : [];
@@ -39,7 +91,7 @@ export const cmsApi = {
       }
     },
 
-    async update(car: any, images?: any[], specs?: any[]) {
+    async update(car: Partial<Car> & { id: string }, images?: CarImage[], specs?: CarSpec[]): Promise<{ success: boolean }> {
       try {
         if (!car.id) {
           throw new Error('Car ID is required for updates');
@@ -139,8 +191,8 @@ export const cmsApi = {
       }
     },
 
-    async delete(id: string) {
-      try {
+    async delete(id: string): Promise<{ success: boolean }> {
+      return withErrorHandling(async () => {
         const { error } = await supabase
           .from('cars')
           .delete()
@@ -148,55 +200,62 @@ export const cmsApi = {
 
         if (error) throw error;
         return { success: true };
-      } catch (error) {
-        console.error('Error deleting car:', error);
-        throw new Error('Failed to delete car');
-      }
+      }, 'Failed to delete car');
     },
   },
 
   blog: {
-    async getAll() {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .order('created_at', { ascending: false });
+    async getAll(): Promise<BlogPost[]> {
+      return withErrorHandling(async () => {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data || [];
+      }, 'Failed to fetch blog posts');
     },
 
-    async create(post: any) {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert(post)
-        .select()
-        .single();
+    async create(post: Partial<BlogPost>): Promise<BlogPost> {
+      return withErrorHandling(async () => {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert(post)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        if (!data) throw new Error('No data returned');
+        return data;
+      }, 'Failed to create blog post');
     },
 
-    async update(post: any) {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .update(post)
-        .eq('id', post.id)
-        .select()
-        .single();
+    async update(post: Partial<BlogPost> & { id: string }): Promise<BlogPost> {
+      return withErrorHandling(async () => {
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .update(post)
+          .eq('id', post.id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        if (!data) throw new Error('No data returned');
+        return data;
+      }, 'Failed to update blog post');
     },
 
-    async delete(id: string) {
-      const { error } = await supabase
-        .from('blog_posts')
-        .delete()
-        .eq('id', id);
+    async delete(id: string): Promise<{ success: boolean }> {
+      return withErrorHandling(async () => {
+        const { error } = await supabase
+          .from('blog_posts')
+          .delete()
+          .eq('id', id);
 
-      if (error) throw error;
-      return { success: true };
+        if (error) throw error;
+        return { success: true };
+      }, 'Failed to delete blog post');
     },
   },
 };

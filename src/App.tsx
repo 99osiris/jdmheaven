@@ -1,6 +1,7 @@
 import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from './contexts/AuthContext';
+import { AccountProvider } from './contexts/AccountContext';
 import { ErrorBoundaryWrapper } from './components/ErrorBoundaryWrapper';
 import { Router } from './router';
 
@@ -9,7 +10,9 @@ function App() {
     <ErrorBoundaryWrapper name="app">
       <HelmetProvider>
         <AuthProvider>
-          <Router />
+          <AccountProvider>
+            <Router />
+          </AccountProvider>
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundaryWrapper>

@@ -12,9 +12,9 @@ const corsHeaders = {
 // Initialize Sanity client
 const sanityClient = createSanityClient({
   projectId: Deno.env.get('SANITY_PROJECT_ID') || '',
-  dataset: Deno.env.get('SANITY_DATASET') || 'production',
+  dataset: Deno.env.get('SANITY_DATASET') || 'car-inventory', // Match main app dataset
   useCdn: false,
-  apiVersion: '2024-01-01',
+  apiVersion: '2023-05-03', // Match main app API version
   token: Deno.env.get('SANITY_API_TOKEN') || '',
 });
 
@@ -61,29 +61,32 @@ function mapSanityCarToSupabase(sanityCar: any) {
         .join('\n')}`
     : '';
 
-  return {
-    sanity_id: sanityCar._id,
-    reference_number: sanityCar.stockNumber || `SANITY-${sanityCar._id.slice(-8)}`,
-    make: sanityCar.brand || '',
-    model: sanityCar.model || '',
-    year: sanityCar.year || new Date().getFullYear(),
-    price: sanityCar.finalPrice || sanityCar.basePrice || 0,
-    mileage: null,
-    engine_type: sanityCar.specs?.engine || null,
-    engine_size: sanityCar.specs?.displacement ? `${sanityCar.specs.displacement}L` : null,
-    transmission: sanityCar.specs?.transmission || null,
-    drivetrain: sanityCar.specs?.drivetrain || null,
-    horsepower: sanityCar.specs?.power || null,
-    torque: sanityCar.specs?.torque ? `${sanityCar.specs.torque} Nm` : null,
-    color: sanityCar.exteriorColor || null,
-    location: sanityCar.location || null,
-    status: statusMap[sanityCar.status] || 'available',
-    description: `${sanityCar.description || ''}${maintenanceNotes}`.trim() || null,
-    features: features.length > 0 ? features : null,
-    sanity_synced_at: new Date().toISOString(),
-    specs, // Store for later use
-    images: sanityCar.images || [],
-  };
+    const now = new Date().toISOString();
+    return {
+      sanity_id: sanityCar._id,
+      reference_number: sanityCar.stockNumber || `SANITY-${sanityCar._id.slice(-8)}`,
+      make: sanityCar.brand || '',
+      model: sanityCar.model || '',
+      year: sanityCar.year || new Date().getFullYear(),
+      price: sanityCar.finalPrice || sanityCar.basePrice || 0,
+      mileage: null,
+      engine_type: sanityCar.specs?.engine || null,
+      engine_size: sanityCar.specs?.displacement ? `${sanityCar.specs.displacement}L` : null,
+      transmission: sanityCar.specs?.transmission || null,
+      drivetrain: sanityCar.specs?.drivetrain || null,
+      horsepower: sanityCar.specs?.power || null,
+      torque: sanityCar.specs?.torque ? `${sanityCar.specs.torque} Nm` : null,
+      color: sanityCar.exteriorColor || null,
+      location: sanityCar.location || null,
+      status: statusMap[sanityCar.status] || 'available',
+      description: `${sanityCar.description || ''}${maintenanceNotes}`.trim() || null,
+      features: features.length > 0 ? features : null,
+      sanity_synced_at: now,
+      created_at: sanityCar.createdAt || now, // Use Sanity createdAt or current time
+      updated_at: sanityCar.updatedAt || now, // Use Sanity updatedAt or current time
+      specs, // Store for later use
+      images: sanityCar.images || [],
+    };
 }
 
 serve(async (req) => {
@@ -245,10 +248,14 @@ serve(async (req) => {
     let carId: string;
 
     if (existingCar) {
-      // Update existing
+      // Update existing - preserve created_at, update updated_at
+      const { created_at, ...updateData } = carData;
       const { data, error } = await supabase
         .from('cars')
-        .update(carData)
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString(),
+        })
         .eq('sanity_id', sanityId)
         .select('id')
         .single();

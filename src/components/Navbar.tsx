@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MenuIcon, X, Phone, Car, Settings, Users, FileText, MessageSquare, ShoppingBag, ChevronDown, Image } from 'lucide-react';
+import { MenuIcon, X, Phone, Car, Settings, Users, FileText, MessageSquare, ShoppingBag, ChevronDown, Image, Heart, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useAccount } from '../contexts/AccountContext';
+import { CartDrawer } from './CartDrawer';
 
 const carMakes = [
   { name: 'Nissan', models: ['Skyline GT-R', 'Silvia', '180SX', '240Z', 'Fairlady Z'] },
@@ -20,6 +22,8 @@ const Navbar = () => {
   const closeTimeout = useRef<NodeJS.Timeout>();
   const adminCloseTimeout = useRef<NodeJS.Timeout>();
   const { user } = useAuth();
+  const { wishlistCount, cartCount } = useAccount();
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const isAdmin = user?.user_metadata?.role === 'admin';
 
@@ -175,6 +179,32 @@ const Navbar = () => {
             <Link to="/about" className="text-white hover:text-racing-red transition font-zen text-sm">About</Link>
             <Link to="/blog" className="text-white hover:text-racing-red transition font-zen text-sm">Blog</Link>
             <Link to="/contact" className="text-white hover:text-racing-red transition font-zen text-sm">Contact</Link>
+            
+            {/* Wishlist & Cart Icons */}
+            <Link 
+              to="/dashboard/wishlist" 
+              className="relative flex items-center text-white hover:text-racing-red transition font-zen text-sm"
+            >
+              <Heart size={18} />
+              {wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-racing-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {wishlistCount > 9 ? '9+' : wishlistCount}
+                </span>
+              )}
+            </Link>
+            
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative flex items-center text-white hover:text-racing-red transition font-zen text-sm"
+            >
+              <ShoppingCart size={18} />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-racing-red text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+            </button>
+            
             {user ? (
               <>
                 <Link to="/custom-request" className="flex items-center text-racing-red hover:text-white transition font-zen text-sm">
@@ -284,6 +314,9 @@ const Navbar = () => {
           </div>
         )}
       </div>
+      
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </nav>
   );
 };

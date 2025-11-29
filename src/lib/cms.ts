@@ -1,9 +1,19 @@
-import { sanityClient, urlFor, handleSanityError } from './sanity-client';
+import { sanityClient, urlFor, handleSanityError } from './sanity';
 import groq from 'groq';
 import { deferOperation } from '../utils/performance';
+import type {
+  SanityHero,
+  SanityTestimonial,
+  SanityGalleryImage,
+  SanityBlogPost,
+  SanityFeaturedCar,
+  SanityJdmLegend,
+  SanityService,
+  SanityCar,
+} from '../types/sanity';
 
 // Cache for CMS data
-const cmsCache = new Map<string, { data: any; timestamp: number }>();
+const cmsCache = new Map<string, { data: unknown; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Helper to check if cache is valid
@@ -16,7 +26,7 @@ const isCacheValid = (key: string) => {
 // Generic fetch function with caching
 const fetchWithCache = async <T>(
   query: string,
-  params?: Record<string, any>,
+  params?: Record<string, unknown>,
   forceFresh = false
 ): Promise<T> => {
   const cacheKey = JSON.stringify({ query, params });
@@ -38,7 +48,7 @@ const fetchWithCache = async <T>(
     return data;
   } catch (error) {
     const errorResult = handleSanityError(error);
-    throw new Error(errorResult.error);
+    throw new Error(errorResult.error || 'Failed to fetch CMS data');
   }
 };
 
@@ -56,7 +66,7 @@ export const cms = {
       ctaSecondaryLink
     }`;
     
-    return fetchWithCache<any>(query);
+    return fetchWithCache<SanityHero>(query);
   },
   
   // Testimonials
@@ -69,7 +79,7 @@ export const cms = {
       "image": image.asset->url
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<SanityTestimonial[]>(query);
   },
   
   // Gallery
@@ -89,7 +99,7 @@ export const cms = {
       order
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<SanityGalleryImage[]>(query);
   },
   
   // Blog posts
@@ -108,7 +118,7 @@ export const cms = {
       "total": count(*[_type == "post"])
     }`;
     
-    return fetchWithCache<{ posts: any[]; total: number }>(query);
+    return fetchWithCache<{ posts: SanityBlogPost[]; total: number }>(query);
   },
   
   // Single blog post
@@ -131,7 +141,7 @@ export const cms = {
       }
     }`;
     
-    return fetchWithCache<any>(query, { slug });
+    return fetchWithCache<SanityBlogPost>(query, { slug });
   },
   
   // Featured cars
@@ -149,7 +159,7 @@ export const cms = {
       referenceId
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<SanityFeaturedCar[]>(query);
   },
 
   // Get all cars from Sanity
@@ -185,7 +195,7 @@ export const cms = {
       "total": count(*[_type == "car"])
     }`;
     
-    return fetchWithCache<{ cars: any[]; total: number }>(query);
+    return fetchWithCache<{ cars: SanityCar[]; total: number }>(query);
   },
 
   // Get single car by Sanity ID
@@ -238,7 +248,7 @@ export const cms = {
       rareUnit
     }`;
     
-    return fetchWithCache<any>(query, { sanityId });
+    return fetchWithCache<SanityCar>(query, { sanityId });
   },
   
   // JDM Legends for carousel
@@ -252,7 +262,7 @@ export const cms = {
       specs
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<SanityJdmLegend[]>(query);
   },
   
   // About page content
@@ -272,7 +282,7 @@ export const cms = {
       stats
     }`;
     
-    return fetchWithCache<any>(query);
+    return fetchWithCache<SanityHero>(query);
   },
   
   // Import process steps
@@ -285,7 +295,7 @@ export const cms = {
       details
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<Array<{ _id: string; title?: string; description?: string; icon?: string; details?: string }>>(query);
   },
   
   // Services
@@ -297,7 +307,7 @@ export const cms = {
       "icon": icon
     }`;
     
-    return fetchWithCache<any[]>(query);
+    return fetchWithCache<SanityService[]>(query);
   },
   
   // Prefetch common data

@@ -1,49 +1,11 @@
-import { sanityClient, urlFor, handleSanityError } from './sanity-client';
-import groq from 'groq';
-import { deferOperation } from '../utils/performance';
+/**
+ * @deprecated Use './cms' instead
+ * This file is kept for backward compatibility
+ * All exports are re-exported from './cms'
+ */
 
-// Cache for CMS data
-const cmsCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-// Helper to check if cache is valid
-const isCacheValid = (key: string) => {
-  const cached = cmsCache.get(key);
-  if (!cached) return false;
-  return Date.now() - cached.timestamp < CACHE_TTL;
-};
-
-// Generic fetch function with caching
-const fetchWithCache = async <T>(
-  query: string,
-  params?: Record<string, any>,
-  forceFresh = false
-): Promise<T> => {
-  const cacheKey = JSON.stringify({ query, params });
-  
-  // Return cached data if valid and not forcing fresh
-  if (!forceFresh && isCacheValid(cacheKey)) {
-    return cmsCache.get(cacheKey)!.data as T;
-  }
-  
-  try {
-    const data = await sanityClient.fetch<T>(query, params);
-    
-    // Update cache
-    cmsCache.set(cacheKey, {
-      data,
-      timestamp: Date.now(),
-    });
-    
-    return data;
-  } catch (error) {
-    const errorResult = handleSanityError(error);
-    throw new Error(errorResult.error);
-  }
-};
-
-// CMS API
-export const cmsClient = {
+export { cms as cmsClient } from './cms';
+export { cms } from './cms';
   // Hero section
   getHero: async () => {
     const query = groq`*[_type == "hero"][0]{

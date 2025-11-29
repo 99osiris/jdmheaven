@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { VinDecoderQuick } from '../VinDecoderQuick';
 import { cms } from '../../lib/cms';
 import { motion } from 'framer-motion';
-import { withRetry } from '../../lib/sanity-client';
+import { withRetry } from '../../lib/sanity';
 
 interface HeroContent {
   title: string;

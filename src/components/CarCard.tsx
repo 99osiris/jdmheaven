@@ -1,8 +1,8 @@
 import React from 'react';
-import { Heart, Share2, Info } from 'lucide-react';
+import { Heart, Share2, Info, ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { api } from '../lib/api';
+import { useAccount } from '../contexts/AccountContext';
 import type { Car } from '../types';
 
 interface CarCardProps {
@@ -14,29 +14,19 @@ interface CarCardProps {
 export const CarCard: React.FC<CarCardProps> = ({ car, onAddToCompare, isInCompare }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isInWishlist, setIsInWishlist] = React.useState(false);
+  const { isInWishlist, toggleWishlist, addToCart } = useAccount();
   const [isHovered, setIsHovered] = React.useState(false);
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    await toggleWishlist(car);
+  };
 
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
-
-    try {
-      if (isInWishlist) {
-        await api.wishlist.remove(car.id);
-        setIsInWishlist(false);
-      } else {
-        await api.wishlist.add(car.id);
-        setIsInWishlist(true);
-      }
-    } catch (error) {
-      console.error('Error updating wishlist:', error);
-    }
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await addToCart(car, 'general');
   };
 
   const handleCompare = (e: React.MouseEvent) => {
@@ -94,10 +84,17 @@ export const CarCard: React.FC<CarCardProps> = ({ car, onAddToCompare, isInCompa
           <button
             onClick={handleWishlist}
             className={`p-2 rounded-full backdrop-blur-md ${
-              isInWishlist ? 'bg-racing-red' : 'bg-black/50 hover:bg-racing-red'
+              isInWishlist(car.id) ? 'bg-racing-red' : 'bg-black/50 hover:bg-racing-red'
             } transition`}
           >
-            <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-white' : ''}`} />
+            <Heart className={`w-5 h-5 ${isInWishlist(car.id) ? 'fill-white' : ''}`} />
+          </button>
+          <button
+            onClick={handleAddToCart}
+            className="p-2 rounded-full bg-black/50 hover:bg-racing-red backdrop-blur-md transition"
+            title="Add to inquiries"
+          >
+            <ShoppingCart className="w-5 h-5" />
           </button>
           <button
             onClick={handleShare}

@@ -15,8 +15,8 @@ export const PortableText: React.FC<PortableTextProps> = ({ content, className =
   return (
     <div className={`prose max-w-none ${className}`}>
       <SanityPortableText
-        dataset={import.meta.env.VITE_SANITY_DATASET || 'production'}
-        projectId={import.meta.env.VITE_SANITY_PROJECT_ID || 'aoh6qdxm'}
+        dataset={import.meta.env.VITE_SANITY_DATASET || 'car-inventory'}
+        projectId={import.meta.env.VITE_SANITY_PROJECT_ID || import.meta.env.SANITY_STUDIO_PROJECT_ID || ''}
         content={content}
         serializers={{
           h1: (props: any) => <h1 className="text-3xl font-zen mb-4" {...props} />,

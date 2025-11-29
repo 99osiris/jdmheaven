@@ -2,6 +2,7 @@ import React, { Suspense } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { ErrorBoundaryWrapper } from './components/ErrorBoundaryWrapper';
 import { LoadingState } from './components/LoadingState';
+import { ErrorPage } from './components/ErrorPage';
 import { useAuth } from './contexts/AuthContext';
 import { SupabaseTest } from './components/SupabaseTest';
 
@@ -92,6 +93,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: createRouteElement(RootLayout, 'layout'),
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: createRouteElement(HomePage, 'home') },
       { path: 'inventory', element: createRouteElement(InventoryPage, 'inventory') },

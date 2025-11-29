@@ -49,9 +49,11 @@ const WishlistPage = () => {
             </div>
           ) : wishlist.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {wishlist.map((item) => (
-                <CarCard key={item.id} car={item.car} />
-              ))}
+              {wishlist.map((item) => {
+                const car = typeof item.car === 'object' && item.car ? item.car : null;
+                if (!car) return null;
+                return <CarCard key={item.id} car={car} />;
+              })}
             </div>
           ) : (
             <div className="text-center py-12 bg-white shadow-sm">

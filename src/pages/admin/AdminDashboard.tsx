@@ -9,6 +9,7 @@ import { DataTable } from '../../components/admin/DataTable';
 import { SearchInput } from '../../components/admin/SearchInput';
 import { ConnectionStatus } from '../../components/ConnectionStatus';
 import { SanitySyncTest } from '../../components/SanitySyncTest';
+import { SyncDiagnostics } from '../../components/SyncDiagnostics';
 import { supabase } from '../../lib/supabase';
 
 const AdminDashboard = () => {
@@ -236,7 +237,10 @@ const AdminDashboard = () => {
 
             <div className="bg-white shadow-lg rounded-none p-6">
               <h2 className="text-xl font-bold mb-4">Sanity ↔ Supabase Sync</h2>
-              <SanitySyncTest />
+              <div className="space-y-6">
+                <SyncDiagnostics />
+                <SanitySyncTest />
+              </div>
             </div>
           </div>
         )}

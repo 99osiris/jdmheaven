@@ -4,8 +4,11 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ErrorBoundaryWrapper } from '../components/ErrorBoundaryWrapper';
+import { usePageTracking } from '../hooks/usePageTracking';
 
 const RootLayout: React.FC = () => {
+  usePageTracking();
+  
   return (
     <>
       <ScrollRestoration />

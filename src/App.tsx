@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AccountProvider } from './contexts/AccountContext';
 import { ErrorBoundaryWrapper } from './components/ErrorBoundaryWrapper';
 import { Router } from './router';
+import { AnalyticsWrapper } from './components/AnalyticsWrapper';
 
 function App() {
   return (

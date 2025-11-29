@@ -5,6 +5,7 @@ import { LoadingState } from './components/LoadingState';
 import { ErrorPage } from './components/ErrorPage';
 import { useAuth } from './contexts/AuthContext';
 import { SupabaseTest } from './components/SupabaseTest';
+import { usePageTracking } from './hooks/usePageTracking';
 
 // Layout
 const RootLayout = React.lazy(() => import('./layouts/RootLayout'));

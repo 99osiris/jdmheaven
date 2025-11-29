@@ -7,8 +7,11 @@ import { VinDecoderQuick } from '../components/VinDecoderQuick';
 import { StockAlertForm } from '../components/StockAlertForm';
 import { InventoryFilters, FilterValues } from '../components/InventoryFilters';
 import { InventoryStatus } from '../components/InventoryStatus';
+import { QuickFilterChips, QuickFilter } from '../components/QuickFilterChips';
+import { RecentlyViewed } from '../components/RecentlyViewed';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { analytics } from '../lib/analytics';
 import { toast } from '../components/Toast';
 import type { Car } from '../types';
 
@@ -41,15 +44,59 @@ const InventoryPage = () => {
     horsepowerMax: '',
   });
 
+  // Quick filter handlers
+  const quickFilters: QuickFilter[] = [
+    {
+      id: 'under_30k',
+      label: 'Under €30k',
+      filter: () => {
+        setFilters(prev => ({ ...prev, priceMax: '30000' }));
+        analytics.filterUse('quick', 'under_30k');
+      },
+      active: filters.priceMax === '30000',
+    },
+    {
+      id: 'rhd_only',
+      label: 'RHD Only',
+      filter: () => {
+        setFilters(prev => ({ ...prev, handling: 'right' }));
+        analytics.filterUse('quick', 'rhd_only');
+      },
+      active: filters.handling === 'right',
+    },
+    {
+      id: 'new_arrivals',
+      label: 'New Arrivals',
+      filter: () => {
+        // Filter by created_at in last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        // This would need backend support, for now just track
+        analytics.filterUse('quick', 'new_arrivals');
+      },
+    },
+    {
+      id: 'available',
+      label: 'Available Now',
+      filter: () => {
+        // Filter by status = available
+        analytics.filterUse('quick', 'available');
+      },
+    },
+  ];
+
   useEffect(() => {
     const fetchCars = async () => {
       try {
+        setLoading(true);
         const data = await api.cars.getAll();
         setCars(data);
+        analytics.search(searchQuery || 'all', data.length);
       } catch (err) {
         setError('Failed to load cars. Please try again later.');
         console.error('Error fetching cars:', err);
         toast.error('Failed to load inventory');
+        analytics.error('Failed to load inventory', '/inventory');
       } finally {
         setLoading(false);
       }
@@ -197,6 +244,11 @@ const InventoryPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <QuickFilterChips
+          filters={quickFilters}
+          onClear={resetFilters}
+        />
+        
         <InventoryFilters
           filters={filters}
           onChange={setFilters}
@@ -243,6 +295,9 @@ const InventoryPage = () => {
             )}
           </div>
         </div>
+
+        {/* Recently Viewed Section */}
+        <RecentlyViewed />
       </div>
 
       <CompareDrawer

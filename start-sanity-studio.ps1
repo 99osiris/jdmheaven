@@ -27,9 +27,16 @@ if (Test-Path $envFile) {
         
         if (Test-Path $studioPath) {
             Set-Location $studioPath
+            
+            # Force environment variables to ensure correct project
+            $env:SANITY_STUDIO_PROJECT_ID = $projectId
+            $env:SANITY_STUDIO_DATASET = $env:VITE_SANITY_DATASET
+            
             Write-Host "📂 Changed to sanity-studio directory" -ForegroundColor Cyan
             Write-Host ""
             Write-Host "🚀 Starting Sanity Studio..." -ForegroundColor Green
+            Write-Host "   Project ID: $projectId" -ForegroundColor Cyan
+            Write-Host "   Dataset: $($env:SANITY_STUDIO_DATASET)" -ForegroundColor Cyan
             Write-Host "   Studio will be available at: http://localhost:3333" -ForegroundColor Yellow
             Write-Host ""
             
